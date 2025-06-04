@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stress Change Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        label, input, button, select {
+            display: block;
+            margin: 10px 0;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stress Change Checker</h1>
+        <div class="section active" id="tclSection">
+            <label for="dateTCL">Date (YYYY-MM-DD):</label>
+            <input type="date" id="dateTCL">
+            <div id="monitoringPointsTCL">
+                <div>
+                    <label for="latestStrain01">TCL MSG01 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrain01" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrain02">TCL MSG02 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrain02" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrain03">TCL MSG03 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrain03" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrain04">TCL MSG04 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrain04" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrain05">TCL MSG05 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrain05" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrain06">TCL MSG06 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrain06" step="0.0001">
+                </div>
+            </div>
+
+            <button onclick="checkStress('TCL')">Check Stress</button>
+
+            <label for="viewDateTCL">Select Date to View Data:</label>
+            <select id="viewDateTCL" onchange="viewData('TCL')">
+                <option value="">Select Date</option>
+            </select>
+
+            <div id="resultTCL"></div>
+            <textarea id="dataViewTCL" rows="10" cols="50"></textarea>
+        </div>
+
+        <div class="section" id="aelSection">
+            <label for="dateAEL">Date (YYYY-MM-DD):</label>
+            <input type="date" id="dateAEL">
+
+            <div id="monitoringPointsAEL">
+                <div>
+                    <label for="latestStrainAEL01">AEL MSG01 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrainAEL01" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrainAEL02">AEL MSG02 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrainAEL02" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrainAEL03">AEL MSG03 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrainAEL03" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrainAEL04">AEL MSG04 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrainAEL04" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrainAEL05">AEL MSG05 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrainAEL05" step="0.0001">
+                </div>
+                <div>
+                    <label for="latestStrainAEL06">AEL MSG06 - Latest Strain Reading:</label>
+                    <input type="number" id="latestStrainAEL06" step="0.0001">
+                </div>
+            </div>
+
+            <button onclick="checkStress('AEL')">Check Stress</button>
+
+            <label for="viewDateAEL">Select Date to View Data:</label>
+            <select id="viewDateAEL" onchange="viewData('AEL')">
+                <option value="">Select Date</option>
+            </select>
+
+            <div id="resultAEL"></div>
+            <textarea id="dataViewAEL" rows="10" cols="50"></textarea>
+        </div>
+    </div>
+
+    <script>
+        function calculateStress(strainDiff) {
+            return (strainDiff * 25.1) / 1000;
+        }
+
+
+function checkStress(section) {
+    const date = document.getElementById(`date${section}`).value;
+    if (!date) {
+        alert('Please select a date.');
+        return;
+    }
+
+    const monitoringPoints = section === 'TCL' ? [
+        { id: 'latestStrain01', highestStrain: 2655.8, lowestStrain: 2535.2, name: 'TCL MSG01' },
+        { id: 'latestStrain02', highestStrain: 2590.7, lowestStrain: 2470.9, name: 'TCL MSG02' },
+        { id: 'latestStrain03', highestStrain: 2560.6, lowestStrain: 2460.2, name: 'TCL MSG03' },
+        { id: 'latestStrain04', highestStrain: 2630.3, lowestStrain: 2578.3, name: 'TCL MSG04' },
+        { id: 'latestStrain05', highestStrain: 2503.7, lowestStrain: 2471.7, name: 'TCL MSG05' },
+        { id: 'latestStrain06', highestStrain: 2672.9, lowestStrain: 2637.7, name: 'TCL MSG06' }
+    ] : [
+        { id: 'latestStrainAEL01', highestStrain: 2580.7, lowestStrain: 2436.4, name: 'AEL MSG01' },
+        { id: 'latestStrainAEL02', highestStrain: 2564.3, lowestStrain: 2532.1, name: 'AEL MSG02' },
+        { id: 'latestStrainAEL03', highestStrain: 2648.6, lowestStrain: 2627.7, name: 'AEL MSG03' },
+        { id: 'latestStrainAEL04', highestStrain: 2580, lowestStrain: 2558.9, name: 'AEL MSG04' },
+        { id: 'latestStrainAEL05', highestStrain: 2770.8, lowestStrain: 2696.5, name: 'AEL MSG05' },
+        { id: 'latestStrainAEL06', highestStrain: 2551.7, lowestStrain: 2529.1, name: 'AEL MSG06' }
+    ];
+
+    let resultText = '';
+    let dataToSave = { date, readings: [] };
+
+    monitoringPoints.forEach(point => {
+        const latestStrain = parseFloat(document.getElementById(point.id).value);
+        if (isNaN(latestStrain)) {
+            resultText += `${point.name} - Invalid strain value\n`;
+            return;
+        }
+
+        let strainDiff;
+        if (latestStrain > point.highestStrain) {
+            strainDiff = latestStrain - point.highestStrain;
+        } else if (latestStrain < point.lowestStrain) {
+            strainDiff = latestStrain - point.lowestStrain;
+        } else {
+            strainDiff = 0;
+        }
+
+        const stress = calculateStress(strainDiff);
+        resultText += `${point.name} - Stress: ${stress.toFixed(4)} kPa\n`;
+        dataToSave.readings.push({ point: point.name, strain: latestStrain, stress: stress.toFixed(4) });
+    });
+
+    document.getElementById(`result${section}`).innerText = resultText;
+
+    // Save data to local storage
+    let savedData = JSON.parse(localStorage.getItem(`stressData${section}`)) || [];
+    savedData.push(dataToSave);
+    localStorage.setItem(`stressData${section}`, JSON.stringify(savedData));
+
+    // Update the date selection dropdown
+    updateDateSelection(section);
+}
+
+function updateDateSelection(section) {
+    const savedData = JSON.parse(localStorage.getItem(`stressData${section}`)) || [];
+    const dateSelect = document.getElementById(`viewDate${section}`);
+    dateSelect.innerHTML = '<option value="">Select Date</option>';
+    savedData.forEach(data => {
+        const option = document.createElement('option');
+        option.value = data.date;
+        option.textContent = data.date;
+        dateSelect.appendChild(option);
+    });
+}
+
+
+        function showSection(sectionId) {
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav a').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Add active class to the clicked nav link
+            document.querySelector(`.nav a[onclick="showSection('${sectionId}')"]`).classList.add('active');
+
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show the selected section
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+ 
+function viewData(section) {
+    const selectedDate = document.getElementById(`viewDate${section}`).value;
+    if (!selectedDate) {
+        document.getElementById(`dataView${section}`).value = '';
+        return;
+    }
+
+    const savedData = JSON.parse(localStorage.getItem(`stressData${section}`)) || [];
+    const dataForDate = savedData.find(data => data.date === selectedDate);
+
+    if (dataForDate) {
+        let dataText = `Data for ${selectedDate}:\n`;
+        dataForDate.readings.forEach(reading => {
+            dataText += `${reading.point} - Strain: ${reading.strain}, Stress: ${reading.stress} kPa\n`;
+        });
+        document.getElementById(`dataView${section}`).value = dataText;
+    } else {
+        document.getElementById(`dataView${section}`).value = `No data found for ${selectedDate}`;
+    }
+}
+
+
+        // Initialize the page by showing the TCL section
+     
+document.addEventListener('DOMContentLoaded', () => {
+    showSection('tclSection');
+    updateDateSelection('TCL');
+    updateDateSelection('AEL');
+});
+
+    </script>
+</body>
+</html>
